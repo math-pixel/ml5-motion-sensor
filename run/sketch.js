@@ -3,8 +3,6 @@ let state = 'waiting';
 let targetLabel;
 let rawData = []; // Stocke les données brutes de l'accéléromètre
 let sequenceLength = 10; // La longueur de la séquence pour chaque axe
-let sequenceCounter = 0; // Compteur pour le nombre de séquences ajoutées
-let maxSequences = 40; // Nombre maximal de séquences à collecter
 let collectionInterval; // Pour stocker l'identifiant de l'intervalle de collecte
 
 // Charger un son pour le bip
@@ -33,20 +31,20 @@ function setup() {
         debug: true
     };
 
-    console.log(options)
     brain = ml5.neuralNetwork(options);
+    const modelInfo = {
+        model: '/model/model.json',
+        metadata: '/model/model_meta.json',
+        weights: '/model/model.weights.bin',
+    };
+    brain.load(modelInfo, brainLoaded);
 
     // Boutons pour la collecte de données
-    createCollectButton('Ligne', 'line', 1);
-    createCollectButton('Circle', 'circle', 2);
-    createCollectButton('Rien', 'nothing', 3);
+    createCollectButton('Test');
+}
 
-    // Bouton pour télécharger les données
-    let downloadButton = createButton('Télécharger les données');
-    downloadButton.position(19, 19);
-    downloadButton.mousePressed(() => {
-        brain.saveData('collectedData');
-    });
+function brainLoaded() {
+    console.log('Classification ready!');
 }
 
 function collectData(x, y, z) {
@@ -64,31 +62,34 @@ function collectData(x, y, z) {
             dataObject['y' + i] = rawData[i].y;
             dataObject['z' + i] = rawData[i].z;
         }
-        console.log(dataObject)
-        brain.addData(dataObject, { label: targetLabel });
-        sequenceCounter++;
+
+        brain.classify(dataObject, function(error, results) {
+            if (error) {
+                console.error(error);
+            } else {
+                let label = results[0].label;
+                let confidence = results[0].confidence;
+                if (confidence > 0.65) {
+                    console.log(label, confidence);
+                    targetLabel = label;
+                }
+            }
+        });
 
         rawData = []; // Réinitialiser pour la prochaine séquence
-        if (sequenceCounter >= maxSequences) {
-            clearInterval(collectionInterval); // Arrêtez la collecte
-            state = 'waiting';
-            sequenceCounter = 0; // Réinitialiser pour la prochaine fois
-            bipSound.play(); // Jouer le son pour indiquer la fin
-        }
     }
 }
 
-function createCollectButton(buttonText, label, index) {
+function createCollectButton(buttonText) {
     let button = createButton(buttonText);
-    button.position(19, (19 + index * 40));
+    button.position(20, 60);
     button.mousePressed(() => {
-        prepareToCollect(label);
+        prepareToCollect();
     });
 }
 
-function prepareToCollect(label) {
-    if (state === 'waiting' && sequenceCounter < maxSequences) {
-        targetLabel = label;
+function prepareToCollect() {
+    if (state === 'waiting') {
         state = 'preparing';
         setTimeout(() => startCollecting(), 1500);
     }
@@ -114,11 +115,10 @@ function startCollecting() {
 function draw() {
     background(255);
     fill(0);
-    textSize(16);
+    textSize(24);
     textAlign(LEFT, TOP);
     text('Collecte: ' + state, 50, 50);
     text('Label: ' + targetLabel, 50, 70);
-    text('Séquences collectées: ' + sequenceCounter, 50, 90);
 }
 
 // Gestionnaire d'événements pour l'accéléromètre
