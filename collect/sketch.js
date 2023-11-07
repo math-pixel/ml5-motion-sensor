@@ -28,7 +28,7 @@ function setup() {
 
     const options = {
         inputs: inputs,
-        outputs: 3, // Nombre de labels de classification
+        outputs: 5, // Nombre de labels de classification
         task: 'classification',
         debug: true
     };
@@ -39,7 +39,9 @@ function setup() {
     // Boutons pour la collecte de données
     createCollectButton('Ligne', 'line', 1);
     createCollectButton('Circle', 'circle', 2);
-    createCollectButton('Rien', 'nothing', 3);
+    createCollectButton('Square', 'square', 3);
+    createCollectButton('Triangle', 'triangle', 4);
+    createCollectButton('Rien', 'nothing', 5);
 
     // Bouton pour télécharger les données
     let downloadButton = createButton('Télécharger les données');
