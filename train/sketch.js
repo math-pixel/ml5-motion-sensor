@@ -19,14 +19,14 @@ function setup() {
         debug: true
     }
     brain = ml5.neuralNetwork(options);
-    brain.loadData('collectedData.json', dataReady);
+    brain.loadData('train/collectedData_mixed.json', dataReady);
 }
 
 function dataReady() {
     brain.normalizeData();
 
     const trainingOptions = {
-        epochs: 80
+        epochs: 250
     }
 
     brain.train(trainingOptions, finished);
