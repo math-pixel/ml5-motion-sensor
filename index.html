@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+<script>
+
+const socket = io();
+
+
+    document.addEventListener('keydown', function(event) {
+    if(event.keyCode == 37) {
+        // alert('Left was pressed');
+        socket.emit('sort1', "coucou");
+
+    }
+    else if(event.keyCode == 39) {
+        // alert('Right was pressed');
+        socket.emit('sort2', "coucou");
+
+    }
+});
+</script>
+</html>

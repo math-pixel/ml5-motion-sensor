@@ -1,5 +1,5 @@
 let brain;
-let sequenceLength = 10;
+let sequenceLength = 15;
 
 function setup() {
     createCanvas(640, 480);
@@ -10,23 +10,44 @@ function setup() {
         inputs.push('x' + i);
         inputs.push('y' + i);
         inputs.push('z' + i);
+        //inputs.push('xOrien' + i);
+        //inputs.push('yOrien' + i);
+        //inputs.push('zOrien' + i);
     }
 
     let options = {
         inputs: inputs,
-        outputs: 3,
+        outputs: 4,
         task: 'classification',
+        layers: [
+            {
+              type: 'dense',
+              units: 16,
+              activation: 'relu'
+            },
+            {
+              type: 'dense',
+              units: 8,
+              activation: 'sigmoid'
+            },
+            {
+              type: 'dense',
+              activation: 'sigmoid'
+            }
+          ],
         debug: true
     }
+
     brain = ml5.neuralNetwork(options);
-    brain.loadData('train/collectedData_mixed.json', dataReady);
+    brain.loadData('train/Data.json', dataReady);
 }
 
 function dataReady() {
     brain.normalizeData();
 
     const trainingOptions = {
-        epochs: 250
+        epochs: 80,
+        batchSize: 6
     }
 
     brain.train(trainingOptions, finished);
